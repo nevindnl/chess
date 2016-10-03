@@ -20,10 +20,12 @@ Chess, written in Ruby, played in the terminal.
     * [King][king]
   * [Pawn][pawn]
 
-	Each piece stores a list of directions in which they can move. With the exception of the pawn, pieces either include a Slideable or Steppable module that generates a list of possible moves. The Piece superclass then filters these moves into valid moves, depending on whether they move a piece's own side into check.
+Each piece stores a list of directions in which they can move. With the exception of the pawn, pieces either include a Slideable or Steppable module that generates a list of possible moves. The Piece superclass then filters these moves into valid moves, depending on whether they move a piece's own side into check.
 
 * [Board][board]
   * Stores board, check/checkmate logic, and scoring logic.
+* [Board][board]
+  * Stores player interaction logic and computer AI.
 * [Game][game]
   * Stores player interaction logic and computer AI.
 * [Display][display]
@@ -116,7 +118,7 @@ def minimax player = @current_player, board = @board, move = nil, alpha = -102, 
 end
 ```
 
-Boards are scored using a simple, weighted sum of the pieces on either side, plus or minus a value for check (scores in [-100, 100]). Checkmate returns sentinel scores (-101, 101).
+Boards are scored using a weighted sum of the pieces on either side, plus or minus a value for check (scores in [-100, 100]). Checkmate returns sentinel scores (-101, 101).
 
 ```Ruby
 # Game#score
