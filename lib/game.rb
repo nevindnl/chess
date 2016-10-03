@@ -18,6 +18,8 @@ class Game
     @black = Player.new(board, :black)
 
     @current_player = @white
+
+		@difficulty = {}
   end
 
   def swap_player
@@ -61,7 +63,7 @@ class Game
 
 		@board.move(*minimax[:move])
 
-		sleep(0.1)
+		sleep(1)
   end
 
 	def player_pieces player = @current_player
@@ -109,7 +111,7 @@ class Game
 	# initialize alpha and beta to sentinels
 	def minimax player = @current_player, board = @board, move = nil, alpha = -102, beta = 102, level = 0
 		# terminate at 3 levels or if checkmate
-		return {score: score(board), move: move} if level == 2 || score(board).abs == 101
+		return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 101
 
 		pieces = player.color == :white ? board.white_pieces : board.black_pieces
 		pieces.shuffle!
@@ -183,16 +185,37 @@ class Game
 		board.score(current_color) - board.score(other_color)
 	end
 
+	def get_difficulty color
+		puts "Enter difficulty (1 = easy, 2, 3 = hard):"
+		input = gets.chomp.to_i
+
+		if [1,2,3].include? input
+			@difficulty[color] = input
+		else
+			puts "Not a valid difficulty."
+			get_difficulty color
+		end
+	end
+
 	def run
 		system("clear")
+
+		puts "Welcome to Chess."
+
+		sleep(2)
 
 		puts "Number of players:"
 		input = gets.chomp.to_i
 
 		case input
 		when 0
+			puts "Computer (Black)"
+			get_difficulty :black
+			puts "Computer (White)"
+			get_difficulty :white
 			zero_player_run
 		when 1
+			get_difficulty :black
 			one_player_run
 		when 2
 			two_player_run
