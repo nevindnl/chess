@@ -10,6 +10,7 @@ Chess, written in Ruby, played in the terminal.
 
 ## Implementation
 ### Design
+* [NullPiece][nullpiece]
 * [Piece][piece]
   * [Slideable][slideable]
     * [Bishop][bishop]
@@ -23,12 +24,14 @@ Chess, written in Ruby, played in the terminal.
 Each piece stores a list of directions in which they can move. With the exception of the pawn, pieces either include a Slideable or Steppable module that generates a list of possible moves. The Piece superclass then filters these moves into valid moves, depending on whether they move a piece's own side into check.
 
 * [Board][board]
-  * Stores player interaction logic and computer AI.
+  * Stores board, check/checkmate logic, and scoring logic.
+* [Player][player]
 * [Game][game]
   * Stores player interaction logic and computer AI.
 * [Display][display]
   * Stores presentational logic.
 
+  [nullpiece]: ./lib/nullpiece.rb
   [piece]: ./lib/piece.rb
   [slideable]: ./lib/slideable.rb
   [steppable]: ./lib/steppable.rb
@@ -38,6 +41,7 @@ Each piece stores a list of directions in which they can move. With the exceptio
   [knight]: ./lib/knight.rb
   [king]: ./lib/king.rb
   [board]: ./lib/board.rb
+  [player]: ./lib/player.rb
   [game]: ./lib/game.rb
   [display]: ./lib/display.rb
 
