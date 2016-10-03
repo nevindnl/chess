@@ -1,6 +1,8 @@
 require_relative 'piece'
 
 class Pawn < Piece
+	attr_accessor :en_passant
+
   def initialize(color:, board:, pos:)
     super
 
@@ -15,6 +17,7 @@ class Pawn < Piece
     end
 
     @initial_pos = pos
+		@en_passant = false
   end
 
   def at_start_row?
@@ -38,6 +41,7 @@ class Pawn < Piece
         new_row = row + delta_row * dist
         new_col = col + delta_col * dist
 
+				# break unless in bounds and free
         break unless @board.in_bounds?([new_row, new_col]) &&
           @board[[new_row, new_col]] == NullPiece.instance
 
@@ -51,9 +55,12 @@ class Pawn < Piece
       new_row = row + delta_row
       new_col = col + delta_col
 
-      #next if piece is our color or out of bounds
+      #next unless in bounds and capture, including en passant
       next unless @board.in_bounds?([new_row, new_col]) &&
-        @board[[new_row, new_col]].color == @opponent_color
+        (@board[[new_row, new_col]].color == @opponent_color ||
+					(@board[[row, new_col]].color == @opponent_color &&
+						@board[[row, new_col]].is_a?(Pawn) &&
+							@board[[row, new_col]].en_passant))
 
       all_moves << [new_row, new_col]
     end

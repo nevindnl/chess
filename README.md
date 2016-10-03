@@ -137,7 +137,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
 end
 ```
 
-Boards are scored using a weighted piece count, with an adjustment for check, unless checkmate.
+Unless checkmate, a board is scored using weighted piece counts, adjusted for check.
 
 ```Ruby
 # Game#score
@@ -156,7 +156,7 @@ def score color
   elsif checkmate? other_color
     300
   else
-    # else, determine adjustment for check
+    # else, adjust for check
     check =
       if in_check? color
        -10
@@ -166,12 +166,12 @@ def score color
         0
       end
 
-    # add to the weighted piece count
-    piece_score(color) - piece_score(other_color) + check
+    # and return the weighted piece count difference
+    check + weighted_piece_count(color) - weighted_piece_count(other_color)
   end
 end
 
-def piece_score color
+def weighted_piece_count color
   pieces(color).inject(0) do |score, piece|
     if piece.is_a? Pawn
       score + 2

@@ -54,12 +54,22 @@ class Board
 	end
 
   def move(start_pos, end_pos)
+		pawns = @rows.flatten.select{ |piece| piece.is_a? Pawn }
+		pawns.each{ |pawn| pawn.en_passant = false}
+
     piece = self[start_pos]
     piece.pos = end_pos
 
-		#pawn promotion
-		if piece.is_a?(Pawn) && piece.at_end_row?
-			piece = Queen.new(color: piece.color, board: piece.board, pos: piece.pos)
+		if piece.is_a?(Pawn)
+			# pawn promotion
+			if piece.at_end_row?
+				piece = Queen.new(color: piece.color, board: piece.board, pos: piece.pos)
+			# en passant
+			elsif (start_pos[0] - end_pos[0]).abs == 2
+				piece.en_passant = true
+			elsif (start_pos[1] != end_pos[1] && self[end_pos] == NullPiece.instance)
+				self[[start_pos[0], end_pos[1]]] = NullPiece.instance
+			end
 		end
 
     #update board
@@ -102,11 +112,11 @@ class Board
 					0
 				end
 
-			piece_score(color) - piece_score(other_color) + check
+			check + weighted_piece_count(color) - weighted_piece_count(other_color)
 		end
 	end
 
-	def piece_score color
+	def weighted_piece_count color
 		pieces(color).inject(0) do |score, piece|
 			if piece.is_a? Pawn
 				score + 2

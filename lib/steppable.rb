@@ -9,7 +9,7 @@ module Steppable
       new_row = row + delta_row
       new_col = col + delta_col
 
-      # next unless pos is in bounds and does not have a piece of the same color
+      # next unless in bounds and does not have a piece of the same color
       next unless @board.in_bounds?([new_row, new_col]) &&
         @board[[new_row, new_col]].color != @color
 
