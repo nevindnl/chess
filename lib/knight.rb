@@ -1,9 +1,8 @@
-require './steppable'
-require './piece'
+require_relative 'steppable'
+require_relative 'piece'
 
 class Knight < Piece
   include Steppable
-
   attr_reader :symbol, :move_dirs, :color
 
   def initialize(color, board, pos)

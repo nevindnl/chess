@@ -1,5 +1,4 @@
-require './steppable'
-require './piece'
+require_relative 'piece'
 
 class Pawn < Piece
   attr_reader :symbol, :move_dirs, :color
@@ -59,5 +58,4 @@ class Pawn < Piece
 
     all_moves
   end
-
 end

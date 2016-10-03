@@ -1,5 +1,4 @@
 module Steppable
-
   def moves
     row, col = @pos
     all_moves = []
@@ -10,7 +9,7 @@ module Steppable
       new_row = row + delta_row
       new_col = col + delta_col
 
-      #next if piece is our color or out of bounds
+      # next unless pos is in bounds and does not have a piece of the same color
       next unless @board.in_bounds?([new_row, new_col]) &&
         @board[[new_row, new_col]].color != @color
 

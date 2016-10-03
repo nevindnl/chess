@@ -1,9 +1,8 @@
 require_relative "display"
 
 class Player
-
   attr_reader :display, :color, :opponent_color
-
+	
   def initialize(board, color)
     @display = Display.new(board)
     @color = color

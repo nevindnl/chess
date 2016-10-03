@@ -1,4 +1,4 @@
-require './nullpiece'
+require_relative 'nullpiece'
 
 class Board
   attr_reader :rows, :white_pieces, :black_pieces
@@ -44,13 +44,18 @@ class Board
     @black_pieces = @rows.flatten.select{ |piece| piece.color == :black }
   end
 
+	def pieces(color)
+		color == :white ? @white_pieces : @black_pieces
+	end
+
+	def find_king(color)
+		king = pieces(color).find { |piece| piece.symbol == :K }
+		king.pos
+	end
+
   def move(start_pos, end_pos)
     piece = self[start_pos]
 
-    raise "No piece at start position." if piece == NullPiece.instance
-    raise "Not a valid move." unless piece.valid_move?(end_pos)
-
-    #update piece's position
     piece.pos = end_pos
 
     #update board
@@ -65,39 +70,66 @@ class Board
     row.between?(0, 7) && col.between?(0, 7)
   end
 
-  def find_king(color)
-    pieces = @black_pieces + @white_pieces
-
-    king = pieces.find { |piece| piece.color == color && piece.symbol == :K }
-    king.pos
-  end
-
   def in_check?(color)
     king_pos = find_king(color)
 
-    opponent_piece_array = color == :white ? @black_pieces : @white_pieces
-    opponent_piece_array.any? { |piece| piece.moves.include?(king_pos) }
-  end
-
-  def dup
-    new_board = Board.new
-    pieces = @black_pieces + @white_pieces
-
-    pieces.each do |piece|
-      pos = piece.pos
-      color = piece.color
-
-      new_board[pos] = piece.class.new(color, new_board, pos)
-    end
-
-    new_board.collect_armies
-    new_board
+    opponent_pieces = color == :white ? @black_pieces : @white_pieces
+    opponent_pieces.any? { |piece| piece.moves.include?(king_pos) }
   end
 
   def checkmate?(color)
-    player_pieces = color == :white ? @white_pieces : @black_pieces
-    player_pieces.all? { |piece| piece.valid_moves.empty? }
+    pieces(color).all? { |piece| piece.valid_moves.empty? }
   end
+
+	def score color
+		other_color = color == :white ? :black : :white
+
+		if checkmate? color
+			-101
+		elsif checkmate? other_color
+			101
+		else
+			check =
+				if in_check? color
+					-20
+				elsif in_check? other_color
+					20
+				else
+					0
+				end
+
+			pieces(color).inject(0) do |score, piece|
+				if piece.is_a? Pawn
+					score + 1
+				elsif piece.is_a? Knight
+					score + 3
+				elsif piece.is_a? Bishop
+					score + 9
+				elsif piece.is_a? Rook
+					score + 12
+				elsif piece.is_a? Queen
+					score + 24
+				else
+					score
+				end
+			end + check
+		end
+	end
+
+	def dup
+		new_board = Board.new
+		pieces = @black_pieces + @white_pieces
+
+		pieces.each do |piece|
+			pos = piece.pos
+			color = piece.color
+
+			new_board[pos] = piece.class.new(color, new_board, pos)
+		end
+
+		new_board.collect_armies
+		new_board
+	end
 
   #for testing
   def render
