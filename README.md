@@ -1,19 +1,19 @@
 ## Chess
+![image of game](./screenshots/game.png)
+
+Chess, written in Ruby, played in the terminal.
 
 1. `git clone http://github.com/nevindnl/chess.git`
 2. `cd chess`
 3. `ruby chess.rb`
 
-Chess, written in Ruby, played in the terminal.
-
-![image of game](./screenshots/game.png)
-
 ### Implementation
+#### Design
 * [Piece][piece]
 	* [Slideable][slideable]
 		* [Bishop][bishop]
 		* [Rook][rook]
-		* [Queen][Queen]
+		* [Queen][queen]
 	* [Steppable][steppable]
 		* [Knight][knight]
 		* [King][king]
@@ -40,130 +40,126 @@ Chess, written in Ruby, played in the terminal.
   [game]: ./lib/game.rb
   [display]: ./lib/display.rb
 
+#### AI
 The computer AI uses a minimax algorithm with alpha-beta pruning.
 
 ```Ruby
-tilt(i, j){
-  function toLeft(){
-    if (j !== 0){
-      this.grid = Util.transpose(this.grid);
-    }
-    if (i + j > 0){
-      this.grid = this.grid.map(row => row.reverse());
-    }
-  }
+# initialize alpha and beta to sentinels
+def minimax player = @current_player, board = @board, move = nil, alpha = -102, beta = 102, level = 0
+	# terminate at 3 levels or if checkmate
+	return {score: score(board), move: move} if level == 2 || score(board).abs == 101
 
-  function fromLeft(){
-    if (i + j > 0){
-      this.grid = this.grid.map(row => row.reverse());
-    }
-    if (j !== 0){
-      this.grid = Util.transpose(this.grid);
-    }
-  }
+	pieces = player.color == :white ? board.white_pieces : board.black_pieces
+	pieces.shuffle!
 
-  toLeft.call(this);
-  this.leftTilt();
-  fromLeft.call(this);
-}
+	best_move = []
 
-leftTilt(){
-  this.grid = this.grid.map(row => {
-    //remove spaces
-    const tilted = row.filter(cell => cell.n !== -1);
+	# max if current_player
+	if player == @current_player
+		best_score = alpha
 
-    //merge
-    let j = 0;
-    while(j < tilted.length - 1){
-      let [cell, nextCell] = tilted.slice(j, j + 2);
+		#iterate through possible moves
+		pieces.each do |piece|
+			piece.valid_moves.each do |end_pos|
+				# for each move:
+				possible_move = [piece.pos, end_pos]
 
-    if (cell.n === nextCell.n){
-      cell.n += 1;
-      cell.merged = true;
-      tilted.splice(j + 1, 1);
-    }
+				# create board
+				possible_board = board.dup
+				possible_board.move(*possible_move)
 
-      j += 1;
-    }
+				# recurse to find best score after move, updating upper bound
+				possible_score = minimax(other_player(player), possible_board, possible_move, best_score, beta, level + 1)[:score]
 
-    //add space as needed
-    while(tilted.length < this.size){
-      tilted.push(new Cell(-1));
-    }
+				# terminate if score is greater than minimizer would allow
+				if possible_score > beta
+					return {score: beta, move: []}
+				end
 
-    return tilted;
-  });
-}
+				# update best score
+				if possible_score > best_score
+					best_score = possible_score
+					best_move = possible_move
+				end
+			end
+		end
+
+	# min if other player
+	else
+		best_score = beta
+
+		pieces.each do |piece|
+			piece.valid_moves.each do |end_pos|
+				possible_move = [piece.pos, end_pos]
+
+				possible_board = board.dup
+				possible_board.move(*possible_move)
+
+				# recurse to find best score after move, updating lower bound
+				possible_score = minimax(other_player(player), possible_board, possible_move, alpha, best_score, level + 1)[:score]
+
+				# terminate if score is less than maximizer would allow
+				if possible_score < alpha
+					return {score: alpha, move: []}
+				end
+
+				if possible_score < best_score
+					best_score = possible_score
+					best_move = possible_move
+				end
+			end
+		end
+	end
+
+	{score: best_score, move: best_move}
+end
 ```
 
-DOM methods were used to render the grid,
+Boards are scored from -100 to 100 using a simple, weighted differential of the pieces on either side, plus or minus a penalty for being in check. Checkmate is -101 or 101.
 
-```Javascript
-drawGrid(){
-  document.querySelectorAll('.grid-container div').forEach(div => {
-    div.remove();
-  });
+```Ruby
+# Game#score
+def score board
+	current_color = @current_player.color
+	other_color = other_player.color
 
-  const grid = 	document.getElementsByClassName('grid-container')[0];
-  const canvas = 	document.getElementsByTagName('canvas')[0];
-
-  grid.style.width = this.dim + 'px';
-  grid.style.height = this.dim + 'px';
-  grid.style.border = `${this.gridBorder}px solid #${this.gridColor}`;
-  canvas.width = this.dim;
-  canvas.height = this.dim;
-
-  const cellDim = this.cellDim - 2 * this.cellBorder + 'px';
-  for (let i = 0; i < Math.pow(this.size, 2); i++){
-    const div = document.createElement('div');
-    div.style.width = cellDim;
-    div.style.height = cellDim;
-    div.style.border = `${this.cellBorder}px solid #${this.gridColor}`;
-    grid.appendChild(div);
-  }
-}
+	board.score(current_color) - board.score(other_color)
+end
 ```
+```Ruby
+# Board#score
+def score color
+	other_color = color == :white ? :black : :white
 
-whereas HTML5 Canvas was used to render individual cells.
+	if checkmate? color
+		-101
+	elsif checkmate? other_color
+		101
+	else
+		check =
+			if in_check? color
+				-20
+			elsif in_check? other_color
+				20
+			else
+				0
+			end
 
-```Javascript
-draw(ctx, cellDim, base){
-  if (this.n === -1){
-    return;
-  }
-
-  let fontSize;
-  if (cellDim <= 14){
-    fontSize = 0;
-  } else if (cellDim <= 23){
-    fontSize = 4;
-  } else if (cellDim <= 30){
-    fontSize = 6;
-  } else if (cellDim <= 40){
-    fontSize = 8;
-  } else if (cellDim <= 53){
-    fontSize = 10;
-  } else if (cellDim <= 77){
-    fontSize = 14;
-  } else {
-    fontSize = 22;
-  }
-
-  const number = JSON.stringify(Math.round(Math.pow(base, this.n) * 100)/100);
-  const dec = number.length - 4;
-
-  fontSize = dec > 0 ? Math.floor(fontSize * Math.pow(.87, dec)) : fontSize;
-
-  ctx.font = `100 ${fontSize}pt Arial`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  const [x, y] = [this.j * cellDim, this.i * cellDim];
-
-  ctx.fillStyle = this.n === 11 ? '#ffd700' : COLORS[this.n % 10];
-  ctx.fillRect(x, y, cellDim, cellDim);
-
-  ctx.fillStyle = 'white';
-  ctx.fillText(number, x + cellDim / 2, y + cellDim / 2);
-}
+		pieces(color).inject(0) do |score, piece|
+			if piece.is_a? Pawn
+				score + 1
+			elsif piece.is_a? Knight
+				score + 3
+			elsif piece.is_a? Bishop
+				score + 9
+			elsif piece.is_a? Rook
+				score + 12
+			elsif piece.is_a? Queen
+				score + 24
+			else
+				score
+			end
+		end + check
+	end
+end
 ```
