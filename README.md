@@ -76,7 +76,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
         possible_board = board.dup
         possible_board.move(*possible_move)
 
-        # recurse to find best score after move, updating upper bound
+        # recurse to find best score after move, updating lower bound
         possible_score = minimax(
           player: other_player(player),
           board: possible_board,
@@ -110,7 +110,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
         possible_board = board.dup
         possible_board.move(*possible_move)
 
-        # recurse to find best score after move, updating lower bound
+        # recurse to find best score after move, updating upper bound
         possible_score = minimax(
           player: other_player(player),
           board: possible_board,
