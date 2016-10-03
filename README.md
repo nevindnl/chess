@@ -137,7 +137,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
 end
 ```
 
-Boards are scored using a weighted sum of each side's pieces, adjusted for check. Checkmate returns sentinel scores.
+Boards are scored using a weighted piece count, with an adjustment for check, unless checkmate.
 
 ```Ruby
 # Game#score
@@ -150,13 +150,13 @@ end
 def score color
   other_color = color == :white ? :black : :white
 
-  # return sentinel if checkmate
+  # if checkmate, return sentinel
   if checkmate? color
     -300
   elsif checkmate? other_color
     300
   else
-    # determine adjustment for check
+    # else, determine adjustment for check
     check =
       if in_check? color
        -10
@@ -166,21 +166,21 @@ def score color
         0
       end
 
-    # add to the weighted sum of each side's pieces
-    piece_sum(color) - piece_sum(other_color) + check
+    # add to the weighted piece count
+    piece_score(color) - piece_score(other_color) + check
   end
 end
 
-def piece_sum color
+def piece_score color
   pieces(color).inject(0) do |score, piece|
     if piece.is_a? Pawn
-      score + 1
+      score + 2
     elsif piece.is_a? Knight
-      score + 4
+      score + 7
     elsif piece.is_a? Bishop
-      score + 12
+      score + 8
     elsif piece.is_a? Rook
-      score + 15
+      score + 12
     elsif piece.is_a? Queen
       score + 20
     else

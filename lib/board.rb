@@ -102,20 +102,20 @@ class Board
 					0
 				end
 
-			piece_sum(color) - piece_sum(other_color) + check
+			piece_score(color) - piece_score(other_color) + check
 		end
 	end
 
-	def piece_sum color
+	def piece_score color
 		pieces(color).inject(0) do |score, piece|
 			if piece.is_a? Pawn
-				score + 1
+				score + 2
 			elsif piece.is_a? Knight
-				score + 4
+				score + 7
 			elsif piece.is_a? Bishop
-				score + 12
+				score + 8
 			elsif piece.is_a? Rook
-				score + 15
+				score + 12
 			elsif piece.is_a? Queen
 				score + 20
 			else
