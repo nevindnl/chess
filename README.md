@@ -166,7 +166,7 @@ def score color
         0
       end
 
-    # and return the weighted piece count difference
+    # and return weighted piece count difference
     check + weighted_piece_count(color) - weighted_piece_count(other_color)
   end
 end

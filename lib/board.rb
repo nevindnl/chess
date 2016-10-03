@@ -72,6 +72,33 @@ class Board
 			end
 		end
 
+		# castling
+		if piece.is_a?(King) && piece.unmoved
+			piece.unmoved = false
+
+			if (start_pos[1] - end_pos[1]).abs == 2
+				if start_pos[1] > end_pos[1]
+					rook = self[[start_pos[0], 0]]
+					rook.pos = [start_pos[0], start_pos[1] - 1]
+					rook.unmoved = false
+
+					self[[start_pos[0], start_pos[1] - 1]] = rook
+					self[[start_pos[0], 0]] = NullPiece.instance
+				else
+					rook = self[[start_pos[0], 7]]
+					rook.pos = [start_pos[0], start_pos[1] + 1]
+					rook.unmoved = false
+
+					self[[start_pos[0], start_pos[1] + 1]] = rook
+					self[[start_pos[0], 7]] = NullPiece.instance
+				end
+			end
+		end
+
+		if piece.is_a?(Rook) && piece.unmoved
+			piece.unmoved = false
+		end
+
     #update board
     self[end_pos] = piece
     self[start_pos] = NullPiece.instance
