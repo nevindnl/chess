@@ -3,9 +3,8 @@ require_relative 'piece'
 
 class King < Piece
   include Steppable
-  attr_reader :symbol, :move_dirs, :color
 
-  def initialize(color, board, pos)
+  def initialize(color:, board:, pos:)
     super
 
     @symbol = :K

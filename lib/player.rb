@@ -1,13 +1,11 @@
 require_relative "display"
 
 class Player
-  attr_reader :display, :color, :opponent_color
-	
-  def initialize(board, color)
-    @display = Display.new(board)
-    @color = color
+  attr_reader :color, :display
 
-    @opponent_color = @color == :white ? :black : :white
+  def initialize(color:, board:)
+    @color = color
+		@display = Display.new(board)
   end
 
   def command

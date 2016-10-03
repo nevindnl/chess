@@ -19,22 +19,22 @@ class Board
 
   def make_starting_grid
     #make non-pawns
-    self[[7,0]] = Rook.new(:white, self, [7,0])
-    self[[7,1]] = Knight.new(:white, self, [7,1])
-    self[[7,2]] = Bishop.new(:white, self, [7,2])
-    self[[7,3]] = Queen.new(:white, self, [7,3])
-    self[[7,4]] = King.new(:white, self, [7,4])
-    self[[7,5]] = Bishop.new(:white, self, [7,5])
-    self[[7,6]] = Knight.new(:white, self, [7,6])
-    self[[7,7]] = Rook.new(:white, self, [7,7])
+    self[[7,0]] = Rook.new(color: :white, board: self, pos: [7,0])
+    self[[7,1]] = Knight.new(color: :white, board: self, pos: [7,1])
+    self[[7,2]] = Bishop.new(color: :white, board: self, pos: [7,2])
+    self[[7,3]] = Queen.new(color: :white, board: self, pos: [7,3])
+    self[[7,4]] = King.new(color: :white, board: self, pos: [7,4])
+    self[[7,5]] = Bishop.new(color: :white, board: self, pos: [7,5])
+    self[[7,6]] = Knight.new(color: :white, board: self, pos: [7,6])
+    self[[7,7]] = Rook.new(color: :white, board: self, pos: [7,7])
 
     (0..7).each do |col|
-      self[[0, col]] = self[[7, col]].class.new(:black, self, [0, col])
+      self[[0, col]] = self[[7, col]].class.new(color: :black, board: self, pos: [0, col])
     end
 
     #make pawns
-    (0..7).each { |col| self[[6, col]] = Pawn.new(:white, self, [6, col])}
-    (0..7).each { |col| self[[1, col]] = Pawn.new(:black, self, [1, col])}
+    (0..7).each { |col| self[[6, col]] = Pawn.new(color: :white, board: self, pos: [6, col])}
+    (0..7).each { |col| self[[1, col]] = Pawn.new(color: :black, board: self, pos: [1, col])}
 
     collect_armies
   end
@@ -59,7 +59,7 @@ class Board
 
 		#pawn promotion
 		if piece.is_a?(Pawn) && piece.at_end_row?
-			piece = Queen.new(piece.color, piece.board, piece.pos)
+			piece = Queen.new(color: piece.color, board: piece.board, pos: piece.pos)
 		end
 
     #update board
@@ -132,7 +132,7 @@ class Board
 			pos = piece.pos
 			color = piece.color
 
-			new_board[pos] = piece.class.new(color, new_board, pos)
+			new_board[pos] = piece.class.new(color: color, board: new_board, pos: pos)
 		end
 
 		new_board.collect_armies

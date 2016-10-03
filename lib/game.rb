@@ -10,19 +10,19 @@ require_relative 'pawn'
 class Game
   attr_reader :white, :black
 
-  def initialize(board = Board.new)
-    @board = board
+  def initialize()
+    @board = Board.new
     @board.make_starting_grid
 
-    @white = Player.new(board, :white)
-    @black = Player.new(board, :black)
+    @white = Player.new(color: :white, board: @board)
+    @black = Player.new(color: :black, board: @board)
 
     @current_player = @white
 
 		@difficulty = {}
   end
 
-  def swap_player
+  def swap_players
     @current_player = @current_player == @white ? @black : @white
   end
 
@@ -67,8 +67,8 @@ class Game
 		sleep(0.3)
   end
 
-	def player_pieces player = @current_player
-		player == @white ? @board.white_pieces : @board.black_pieces
+	def player_pieces
+		@current_player == @white ? @board.white_pieces : @board.black_pieces
 	end
 
 	# AI: capture if possible
@@ -83,11 +83,13 @@ class Game
 			moves[piece.pos] = piece_moves unless piece_moves.empty?
 		end
 
+		other_color = @current_player == @white ? :black : :white
+
 		captures = {}
 		moves.each do |piece_pos, piece_moves|
 
 			piece_captures = piece_moves.select do |move|
-				@board[move].color == @current_player.opponent_color
+				@board[move].color == other_color
 			end
 
 			captures[piece_pos] = piece_captures unless piece_captures.empty?
@@ -108,9 +110,11 @@ class Game
 	# AI: minimax with alpha-beta pruning
 
 	# initialize alpha and beta to sentinels
-	def minimax player = @current_player, board = @board, move = nil, alpha = -400, beta = 400, level = 0
-		# terminate at max level or if checkmate
-		return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 300
+	def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta: 400, level: 0
+		# terminate at max level or checkmate
+		if level == @difficulty[@current_player.color] || score(board).abs == 300
+			return {score: score(board), move: move}
+		end
 
 		pieces = player.color == :white ? board.white_pieces : board.black_pieces
 		pieces.shuffle!
@@ -132,7 +136,14 @@ class Game
 					possible_board.move(*possible_move)
 
 					# recurse to find best score after move, updating lower bound
-					possible_score = minimax(other_player(player), possible_board, possible_move, best_score, beta, level + 1)[:score]
+					possible_score = minimax(
+						player: other_player(player),
+						board: possible_board,
+						move: possible_move,
+						alpha: best_score,
+						beta: beta,
+						level: level + 1
+					)[:score]
 
 					# terminate if score is greater than minimizer would allow
 					if possible_score > beta
@@ -159,7 +170,14 @@ class Game
 					possible_board.move(*possible_move)
 
 					# recurse to find best score after move, updating upper bound
-					possible_score = minimax(other_player(player), possible_board, possible_move, alpha, best_score, level + 1)[:score]
+					possible_score = minimax(
+						player: other_player(player),
+						board: possible_board,
+						move: possible_move,
+						alpha: alpha,
+						beta: best_score,
+						level: level + 1
+					)[:score]
 
 					# terminate if score is less than maximizer would allow
 					if possible_score < alpha
@@ -200,7 +218,7 @@ class Game
 
 		sleep(2)
 
-		puts "Number of players:"
+		puts "Enter number of players (0, 1, 2):"
 		input = gets.chomp.to_i
 
 		case input
@@ -227,7 +245,7 @@ class Game
     turns = 0
     until loser
       computer_move
-      swap_player
+      swap_players
 
       turns += 1
     end
@@ -242,7 +260,7 @@ class Game
 		computer = false
 		until loser
 			computer ? computer_move : move
-			swap_player
+			swap_players
 
 			computer = !computer
 		end
@@ -254,7 +272,7 @@ class Game
 	def two_player_run
 		until loser
 			move
-			swap_player
+			swap_players
 		end
 
 		@current_player.display.render

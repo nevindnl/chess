@@ -46,16 +46,18 @@ The computer AI uses a minimax algorithm with alpha-beta pruning.
 
 ```Ruby
 # initialize alpha and beta to sentinels
-def minimax player = @current_player, board = @board, move = nil, alpha = -400, beta = 400, level = 0
+def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta: 400, level: 0
   # terminate at max level or if checkmate
-  return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 300
+  if level == @difficulty[@current_player.color] || score(board).abs == 300
+    return {score: score(board), move: move}
+  end
 
   pieces = player.color == :white ? board.white_pieces : board.black_pieces
   pieces.shuffle!
 
   best_move = []
 
-	# current_player maximizes
+  # current_player maximizes
   if player == @current_player
     best_score = alpha
 
@@ -70,7 +72,14 @@ def minimax player = @current_player, board = @board, move = nil, alpha = -400, 
         possible_board.move(*possible_move)
 
         # recurse to find best score after move, updating upper bound
-        possible_score = minimax(other_player(player), possible_board, possible_move, best_score, beta, level + 1)[:score]
+        possible_score = minimax(
+          player: other_player(player),
+          board: possible_board,
+          move: possible_move,
+          alpha: best_score,
+          beta: beta,
+          level: level + 1
+        )[:score]
 
         # terminate if score is greater than minimizer would allow
         if possible_score > beta
@@ -97,7 +106,14 @@ def minimax player = @current_player, board = @board, move = nil, alpha = -400, 
         possible_board.move(*possible_move)
 
         # recurse to find best score after move, updating lower bound
-        possible_score = minimax(other_player(player), possible_board, possible_move, alpha, best_score, level + 1)[:score]
+        possible_score = minimax(
+          player: other_player(player),
+          board: possible_board,
+          move: possible_move,
+          alpha: alpha,
+          beta: best_score,
+          level: level + 1
+        )[:score]
 
         # terminate if score is less than maximizer would allow
         if possible_score < alpha
@@ -116,7 +132,7 @@ def minimax player = @current_player, board = @board, move = nil, alpha = -400, 
 end
 ```
 
-Boards are scored using a weighted sum of the pieces on either side, adjusted for check. Checkmate returns sentinel scores (-300, 300).
+Boards are scored using a weighted sum of the pieces on either side, adjusted for check. Checkmate returns sentinel scores.
 
 ```Ruby
 # Game#score
@@ -129,11 +145,13 @@ end
 def score color
   other_color = color == :white ? :black : :white
 
+  # return sentinel if checkmate
   if checkmate? color
     -300
   elsif checkmate? other_color
     300
   else
+    # determine check
     check =
       if in_check? color
        -10
@@ -143,6 +161,7 @@ def score color
         0
       end
 
+    # add to the weighted sum of the pieces
     piece_sum(color) - piece_sum(other_color) + check
   end
 end

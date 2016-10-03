@@ -1,5 +1,6 @@
 class Piece
-  attr_accessor :pos, :symbol, :board
+  attr_accessor :board, :pos
+	attr_reader :color, :symbol, :move_dirs
 
   SYMBOLS = {
     p: {white: "\u2659" , black: "\u265f"},
@@ -10,7 +11,7 @@ class Piece
     K: {white: "\u2654" , black: "\u265a"},
   }
 
-  def initialize(color, board, pos)
+  def initialize(color:, board:, pos:)
     @color = color
     @board = board
     @pos = pos
