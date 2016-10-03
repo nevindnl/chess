@@ -35,6 +35,7 @@ Each piece stores a list of directions in which they can move. With the exceptio
   [piece]: ./lib/piece.rb
   [slideable]: ./lib/slideable.rb
   [steppable]: ./lib/steppable.rb
+	[pawn]: ./lib/pawn.rb
   [bishop]: ./lib/bishop.rb
   [rook]: ./lib/rook.rb
   [queen]: ./lib/queen.rb
@@ -136,7 +137,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
 end
 ```
 
-Boards are scored using a weighted sum of the pieces on either side, adjusted for check. Checkmate returns sentinel scores.
+Boards are scored using a weighted sum of each side's pieces, adjusted for check. Checkmate returns sentinel scores.
 
 ```Ruby
 # Game#score
@@ -155,7 +156,7 @@ def score color
   elsif checkmate? other_color
     300
   else
-    # determine check
+    # determine adjustment for check
     check =
       if in_check? color
        -10
@@ -165,7 +166,7 @@ def score color
         0
       end
 
-    # add to the weighted sum of the pieces
+    # add to the weighted sum of each side's pieces
     piece_sum(color) - piece_sum(other_color) + check
   end
 end
