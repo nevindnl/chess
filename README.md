@@ -35,7 +35,7 @@ Each piece stores a list of directions in which they can move. With the exceptio
   [piece]: ./lib/piece.rb
   [slideable]: ./lib/slideable.rb
   [steppable]: ./lib/steppable.rb
-	[pawn]: ./lib/pawn.rb
+  [pawn]: ./lib/pawn.rb
   [bishop]: ./lib/bishop.rb
   [rook]: ./lib/rook.rb
   [queen]: ./lib/queen.rb
