@@ -23,8 +23,6 @@ Chess, written in Ruby, played in the terminal.
 Each piece stores a list of directions in which they can move. With the exception of the pawn, pieces either include a Slideable or Steppable module that generates a list of possible moves. The Piece superclass then filters these moves into valid moves, depending on whether they move a piece's own side into check.
 
 * [Board][board]
-  * Stores board, check/checkmate logic, and scoring logic.
-* [Board][board]
   * Stores player interaction logic and computer AI.
 * [Game][game]
   * Stores player interaction logic and computer AI.
@@ -48,9 +46,9 @@ The computer AI uses a minimax algorithm with alpha-beta pruning.
 
 ```Ruby
 # initialize alpha and beta to sentinels
-def minimax player = @current_player, board = @board, move = nil, alpha = -102, beta = 102, level = 0
+def minimax player = @current_player, board = @board, move = nil, alpha = -400, beta = 400, level = 0
   # terminate at max level or if checkmate
-  return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 101
+  return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 300
 
   pieces = player.color == :white ? board.white_pieces : board.black_pieces
   pieces.shuffle!
@@ -118,16 +116,12 @@ def minimax player = @current_player, board = @board, move = nil, alpha = -102, 
 end
 ```
 
-Boards are scored using a weighted sum of the pieces on either side, plus or minus a value for check (scores in [-100, 100]). Checkmate returns sentinel scores (-101, 101).
+Boards are scored using a weighted sum of the pieces on either side, adjusted for check. Checkmate returns sentinel scores (-300, 300).
 
 ```Ruby
 # Game#score
 def score board
-  current_color = @current_player.color
-  other_color = other_player.color
-
-	# return
-  board.score(current_color) - board.score(other_color)
+  board.score(@current_player.color)
 end
 ```
 ```Ruby
@@ -135,38 +129,39 @@ end
 def score color
   other_color = color == :white ? :black : :white
 
-  # determine if checkmate
   if checkmate? color
-    -101
+    -300
   elsif checkmate? other_color
-    101
+    300
   else
-    # determine if check
     check =
       if in_check? color
-        -20
+       -10
       elsif in_check? other_color
-        20
+        10
       else
         0
       end
 
-    # add to weighted sum of pieces on board
-    pieces(color).inject(0) do |score, piece|
-      if piece.is_a? Pawn
-        score + 1
-      elsif piece.is_a? Knight
-        score + 3
-      elsif piece.is_a? Bishop
-        score + 9
-      elsif piece.is_a? Rook
-        score + 12
-      elsif piece.is_a? Queen
-        score + 24
-      else
-        score
-      end
-    end + check
+    piece_sum(color) - piece_sum(other_color) + check
+  end
+end
+
+def piece_sum color
+  pieces(color).inject(0) do |score, piece|
+    if piece.is_a? Pawn
+      score + 1
+    elsif piece.is_a? Knight
+      score + 4
+    elsif piece.is_a? Bishop
+      score + 12
+    elsif piece.is_a? Rook
+      score + 15
+    elsif piece.is_a? Queen
+      score + 20
+    else
+      score
+    end
   end
 end
 ```

@@ -62,8 +62,9 @@ class Game
 		@current_player.display.render
 
 		@board.move(*minimax[:move])
+		# @board.move(*capture_if_possible)
 
-		sleep(1)
+		sleep(0.3)
   end
 
 	def player_pieces player = @current_player
@@ -92,8 +93,6 @@ class Game
 			captures[piece_pos] = piece_captures unless piece_captures.empty?
 		end
 
-		check
-
 		moves = captures unless captures.empty?
 
 		start_pos = moves.keys.sample
@@ -109,9 +108,9 @@ class Game
 	# AI: minimax with alpha-beta pruning
 
 	# initialize alpha and beta to sentinels
-	def minimax player = @current_player, board = @board, move = nil, alpha = -102, beta = 102, level = 0
-		# terminate at 3 levels or if checkmate
-		return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 101
+	def minimax player = @current_player, board = @board, move = nil, alpha = -400, beta = 400, level = 0
+		# terminate at max level or if checkmate
+		return {score: score(board), move: move} if level == @difficulty[@current_player.color] || score(board).abs == 300
 
 		pieces = player.color == :white ? board.white_pieces : board.black_pieces
 		pieces.shuffle!
@@ -179,10 +178,7 @@ class Game
 	end
 
 	def score board
-		current_color = @current_player.color
-		other_color = other_player.color
-
-		board.score(current_color) - board.score(other_color)
+		board.score(@current_player.color)
 	end
 
 	def get_difficulty color

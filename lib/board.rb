@@ -55,11 +55,15 @@ class Board
 
   def move(start_pos, end_pos)
     piece = self[start_pos]
-
     piece.pos = end_pos
 
+		#pawn promotion
+		if piece.is_a?(Pawn) && piece.at_end_row?
+			piece = Queen.new(piece.color, piece.board, piece.pos)
+		end
+
     #update board
-    self[end_pos] = self[start_pos]
+    self[end_pos] = piece
     self[start_pos] = NullPiece.instance
 
     collect_armies
@@ -85,34 +89,38 @@ class Board
 		other_color = color == :white ? :black : :white
 
 		if checkmate? color
-			-101
+			-300
 		elsif checkmate? other_color
-			101
+			300
 		else
 			check =
 				if in_check? color
-					-20
+					-10
 				elsif in_check? other_color
-					20
+					10
 				else
 					0
 				end
 
-			pieces(color).inject(0) do |score, piece|
-				if piece.is_a? Pawn
-					score + 1
-				elsif piece.is_a? Knight
-					score + 3
-				elsif piece.is_a? Bishop
-					score + 9
-				elsif piece.is_a? Rook
-					score + 12
-				elsif piece.is_a? Queen
-					score + 24
-				else
-					score
-				end
-			end + check
+			piece_sum(color) - piece_sum(other_color) + check
+		end
+	end
+
+	def piece_sum color
+		pieces(color).inject(0) do |score, piece|
+			if piece.is_a? Pawn
+				score + 1
+			elsif piece.is_a? Knight
+				score + 4
+			elsif piece.is_a? Bishop
+				score + 12
+			elsif piece.is_a? Rook
+				score + 15
+			elsif piece.is_a? Queen
+				score + 20
+			else
+				score
+			end
 		end
 	end
 

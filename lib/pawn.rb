@@ -23,6 +23,10 @@ class Pawn < Piece
     @pos == @initial_pos
   end
 
+	def at_end_row?
+		@color == :white ? @pos[0] == 0 : @pos[0] == 7
+	end
+
   def moves
     row, col = @pos
     all_moves = []
