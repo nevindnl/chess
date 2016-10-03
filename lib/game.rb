@@ -132,7 +132,7 @@ class Game
 					possible_board = board.dup
 					possible_board.move(*possible_move)
 
-					# recurse to find best score after move, updating upper bound
+					# recurse to find best score after move, updating lower bound
 					possible_score = minimax(other_player(player), possible_board, possible_move, best_score, beta, level + 1)[:score]
 
 					# terminate if score is greater than minimizer would allow
@@ -159,7 +159,7 @@ class Game
 					possible_board = board.dup
 					possible_board.move(*possible_move)
 
-					# recurse to find best score after move, updating lower bound
+					# recurse to find best score after move, updating upper bound
 					possible_score = minimax(other_player(player), possible_board, possible_move, alpha, best_score, level + 1)[:score]
 
 					# terminate if score is less than maximizer would allow
