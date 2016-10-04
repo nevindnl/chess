@@ -145,7 +145,7 @@ class Game
 						depth: depth + 1
 					)[:score]
 
-					# terminate if score is greater than minimizer would allow
+					# terminate if score is greater than minimizing player would allow
 					if possible_score > beta
 						return {score: beta, move: nil}
 					end
@@ -179,7 +179,7 @@ class Game
 						depth: depth + 1
 					)[:score]
 
-					# terminate if score is less than maximizer would allow
+					# terminate if score is less than maximizing player would allow
 					if possible_score < alpha
 						return {score: alpha, move: nil}
 					end

@@ -122,7 +122,7 @@ Alpha-beta pruning is a simple but powerful tool used to prevent unnecessary cal
 
 Similarly, for the minimizing player with the choice of two moves `a'` and `b'`, if we calculate after choosing `b'` that the maximizing player can force a game state with a value `> minimax(a')`, then `minimax(b') > minimax(a')`, the minimizing player would never choose `b'`, and we can stop evaluating the subtree after `b'` for the maximizing player.
 
-The implementation of alpha-beta pruning is simple: each node calls minimax with two parameters `alpha` and `beta` that represent the best values already found for the maximizer and minimizer, respectively, beginning from that node.
+The implementation of alpha-beta pruning is simple: each node calls minimax with two parameters `alpha` and `beta` that represent the best values already found for the maximizing player and the minimizing player, respectively, beginning from that node.
 
 When it is the maximizing player's turn, if a move can force a higher minimax value, `alpha` is updated. When it is the minimizing player's turn, if a move can force a lower minimax value, `beta` is updated.
 
@@ -171,7 +171,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
           depth: depth + 1
         )[:score]
 
-        # terminate if score is greater than minimizer would allow
+        # terminate if score is greater than minimizing player would allow
         if possible_score > beta
           return {score: beta, move: nil}
         end
@@ -205,7 +205,7 @@ def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta
           depth: depth + 1
         )[:score]
 
-        # terminate if score is less than maximizer would allow
+        # terminate if score is less than maximizing player would allow
         if possible_score < alpha
           return {score: alpha, move: nil}
         end
