@@ -110,22 +110,22 @@ class Game
 	# AI: minimax with alpha-beta pruning
 
 	# initialize alpha and beta to sentinels
-	def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta: 400, level: 0
-		# terminate at max level or checkmate
-		if level == @difficulty[@current_player.color] || score(board).abs == 300
+	def minimax player: @current_player, board: @board, move: nil, alpha: -400, beta: 400, depth: 0
+		# terminate at max depth or checkmate
+		if depth == @difficulty[@current_player.color] || score(board).abs == 300
 			return {score: score(board), move: move}
 		end
 
 		pieces = player.color == :white ? board.white_pieces : board.black_pieces
 		pieces.shuffle!
 
-		best_move = []
+		best_move = nil
 
 		# max if current_player
 		if player == @current_player
 			best_score = alpha
 
-			#iterate through possible moves
+			# iterate through possible moves
 			pieces.each do |piece|
 				piece.valid_moves.each do |end_pos|
 					# for each move:
@@ -142,12 +142,12 @@ class Game
 						move: possible_move,
 						alpha: best_score,
 						beta: beta,
-						level: level + 1
+						depth: depth + 1
 					)[:score]
 
 					# terminate if score is greater than minimizer would allow
 					if possible_score > beta
-						return {score: beta, move: []}
+						return {score: beta, move: nil}
 					end
 
 					# update best score
@@ -176,12 +176,12 @@ class Game
 						move: possible_move,
 						alpha: alpha,
 						beta: best_score,
-						level: level + 1
+						depth: depth + 1
 					)[:score]
 
 					# terminate if score is less than maximizer would allow
 					if possible_score < alpha
-						return {score: alpha, move: []}
+						return {score: alpha, move: nil}
 					end
 
 					if possible_score < best_score
