@@ -60,7 +60,7 @@ The implementation of a minimax algorithm is recursive. If it is the current pla
 
 #### Alpha-beta pruning
 
-Minimax visits every leaf of the game tree, giving it an time complexity of `O(b ** d)` where b is the branching factor -- that is, the number of possible moves for one player at a time -- and d is the depth.
+Minimax visits every leaf of the game tree, giving it an time complexity of `O(b ** d)` where b is the branching factor -- that is, the number of possible moves for a given player at a given time -- and d is the depth.
 
 Alpha-beta pruning is a simple but powerful tool used to prevent unnecessary calculation. Suppose a maximizing player has the choice of two moves `a` and `b`, and the minimax score of choosing `a` is `minimax(a)`. Suppose then that while evaluating the minimizing player's subtree after the maximizing player has chosen `b`, we calculate that the minimizing player can force a score less than `minimax(a)`. Then `minimax(b) < minimax(a)`, so the maximizing player would never choose `b`, so we can stop evaluating the subtree after `b` for the minimizing player. (That is, we can *prune* those branches.)
 
@@ -70,11 +70,11 @@ The implementation of alpha-beta pruning is simple: each node calls minimax with
 
 When it is the maximizing player's turn, if a move can force a higher minimax score, `alpha` is updated. When it is the minimizing player's turn, if a move can force a lower minimax score, `beta` is updated.
 
-But, if it is the maximizing player's turn, and a move can force a higher minimax score than `beta`, we can prune the subtree in question because we know that the minimizing player would not allow it to be entered, because the minimizing player can force a better option. Similarly, if it is the minimizing player's turn, and a move can force a lower minimax score than `alpha`, we can prune the subtree in question, because we know that the maximizing player would not allow it to be entered, because the maximizing player also can force a better option.
+If it is the maximizing player's turn, and a move can force a higher minimax score than `beta`, we can prune the subtree in question because we know that the minimizing player would not allow it to be entered, because the minimizing player can force a better option. Similarly, if it is the minimizing player's turn, and a move can force a lower minimax score than `alpha`, we can prune the subtree in question, because we know that the maximizing player would not allow it to be entered, because the maximizing player also can force a better option.
 
 ---
 
-In chess, which has a branching factor of ~35, alpha-beta pruning is essential for a minimax implementation of any depth. Here, the depth is determined by the difficulty of the game, which the user inputs.
+In chess, which has a branching factor of ~35, alpha-beta pruning is essential for a minimax implementation of any depth. Here, the depth is determined by the difficulty of the game, which is set by the user.
 
 ```Ruby
 # initialize alpha and beta to sentinels
